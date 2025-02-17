@@ -190,8 +190,8 @@
                     collateral-amount: collateral,
                     loan-amount: loan-amount,
                     interest-rate: u5, ;; 5% interest rate
-                    start-height: block-height,
-                    last-interest-calc: block-height,
+                    start-height: stacks-block-height,
+                    last-interest-calc: stacks-block-height,
                     status: "active"
                 }
             )
@@ -223,7 +223,7 @@
                 (interest-owed (calculate-interest 
                     (get loan-amount loan)
                     (get interest-rate loan)
-                    (- block-height (get last-interest-calc loan))
+                    (- stacks-block-height (get last-interest-calc loan))
                 ))
                 (total-owed (+ (get loan-amount loan) interest-owed))
             )
@@ -236,7 +236,7 @@
                     {loan-id: loan-id}
                     (merge loan {
                         status: "repaid",
-                        last-interest-calc: block-height
+                        last-interest-calc: stacks-block-height
                     })
                 )
                 
@@ -285,4 +285,27 @@
             {price: new-price}
         ))
     )
+)
+
+;; Read-Only Functions
+
+(define-read-only (get-loan-details (loan-id uint))
+    (map-get? loans {loan-id: loan-id})
+)
+
+(define-read-only (get-user-loans (user principal))
+    (map-get? user-loans {user: user})
+)
+
+(define-read-only (get-platform-stats)
+    {
+        total-btc-locked: (var-get total-btc-locked),
+        total-loans-issued: (var-get total-loans-issued),
+        minimum-collateral-ratio: (var-get minimum-collateral-ratio),
+        liquidation-threshold: (var-get liquidation-threshold)
+    }
+)
+
+(define-read-only (get-valid-assets)
+    VALID-ASSETS
 )
